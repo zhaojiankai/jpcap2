@@ -12,7 +12,7 @@ public class JDFrame extends JFrame implements ActionListener
 	public JDCaptor captor;
 	
 	JLabel statusLabel;
-	JMenuItem openMenu,saveMenu,captureMenu,stopMenu;
+	JMenuItem openMenu,saveMenu,sendMenu,captureMenu,stopMenu;
 	JMenu statMenu;
 	JButton openButton,saveButton,captureButton,stopButton;
 	
