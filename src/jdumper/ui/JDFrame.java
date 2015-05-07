@@ -12,7 +12,7 @@ public class JDFrame extends JFrame implements ActionListener
 	public JDCaptor captor;
 	
 	JLabel statusLabel;
-	JMenuItem openMenu,saveMenu,sendMenu,captureMenu,stopMenu;
+	JMenuItem openMenu,saveMenu,captureMenu,stopMenu;
 	JMenu statMenu;
 	JButton openButton,saveButton,captureButton,stopButton;
 	
@@ -63,6 +63,26 @@ public class JDFrame extends JFrame implements ActionListener
 		saveMenu.setEnabled(false);
 		menu.add(saveMenu);
 
+    //Send Menu
+    menu=new JMenu("Send");
+    menuBar.add(menu);
+    item=new JMenuItem("ARP");
+    item.setActionCommand("SendARP");
+    item.addActionListener(this);
+    menu.add(item);
+    item=new JMenuItem("IP");
+    item.setActionCommand("SendIP");
+    item.addActionListener(this);
+    menu.add(item);
+    item=new JMenuItem("ICMP");
+    item.setActionCommand("SendICMP");
+    item.addActionListener(this);
+    menu.add(item);
+    item=new JMenuItem("UDP");
+    item.setActionCommand("SendUDP");
+    item.addActionListener(this);
+    menu.add(item);
+    
 		//Capture Menu
 		menu=new JMenu("Capture");
 		menuBar.add(menu);
@@ -173,6 +193,9 @@ public class JDFrame extends JFrame implements ActionListener
 			captor.capturePacketsFromDevice();
 		}else if(cmd.equals("Stop")){
 			captor.stopCapture();
+		}else if(cmd.startsWith("Send")){
+		  String ptype=cmd.substring(4);
+		  captor.addSendFrame(ptype);
 		}else if(cmd.startsWith("CUMSTAT")){
 			int index=Integer.parseInt(cmd.substring(7));
 			captor.addCumulativeStatFrame(JDStatisticsTakerLoader.getStatisticsTakerAt(index));

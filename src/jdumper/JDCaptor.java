@@ -24,6 +24,8 @@ import jdumper.ui.JDCaptureDialog;
 import jdumper.ui.JDContinuousStatFrame;
 import jdumper.ui.JDCumlativeStatFrame;
 import jdumper.ui.JDFrame;
+import jdumper.ui.JDSender;
+import jdumper.ui.JDSenderARP;
 import jdumper.ui.JDStatFrame;
 
 import jpcap.JpcapCaptor;
@@ -71,6 +73,19 @@ public class JDCaptor {
 			startCaptureThread();
 		}
 	}
+	
+	 public void addSendFrame(String ptype){
+	   if(jpcap!=null)
+	      jpcap.close();
+	    jpcap = JDSender.getJpcap(frame,ptype);
+	    clear();
+	    
+	    if (jpcap != null) {
+	      isLiveCapture = true;
+	      frame.disableCapture();//控制前台的一些东西
+	      startCaptureThread();
+	    }
+	  }
 
 	public void loadPacketsFromFile() {
 		isLiveCapture = false;
@@ -165,6 +180,8 @@ public class JDCaptor {
 		}
 	}
 
+
+	
 	List<JDStatFrame> sframes=new ArrayList<JDStatFrame>();
 	public void addCumulativeStatFrame(JDStatisticsTaker taker) {
 		sframes.add(JDCumlativeStatFrame.openWindow(packets,taker.newInstance()));
