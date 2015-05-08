@@ -156,6 +156,7 @@ String cmd=evt.getActionCommand();
   }
   
   public void sendPacket() throws IOException,NumberFormatException{
+    JpcapSender sender = getSender(); //发送器JpcapSender，用来发送报文
     short operation = (short) Integer.parseInt(caplenField.getText());
     String targetip = targetIp.getText();
     String sendip = sendIp.getText();
@@ -164,13 +165,7 @@ String cmd=evt.getActionCommand();
     if(!"".equals(sendmac)){
        mac = stomac(sendmac);
     }
-
-    
-   // jpcap.setFilter("arp",true);
-    JpcapSender sender = getSender(); //发送器JpcapSender，用来发送报文
-    
-
-    
+    byte[] targetMac = getMAC(sendip,targetip);
     
     InetAddress senderIP = InetAddress.getByName(sendip); //设置本地主机的IP地址，方便接收对方返回的报文
     InetAddress targetIP = InetAddress.getByName(targetip); //目标主机的IP地址
@@ -189,6 +184,9 @@ String cmd=evt.getActionCommand();
 
     byte[] broadcast = new byte[] { (byte) 255, (byte) 255, (byte) 255, (byte) 255, (byte) 255,(byte) 255 }; //广播地址
     packet.target_hardaddr = broadcast; //设置目的端的以太网地址为广播地址
+    if (operation == 2){
+      packet.target_hardaddr = targetMac;
+    }
     packet.target_protoaddr = targetIP.getAddress(); //目的端IP地址
 
     //构造以太帧首部
@@ -199,6 +197,9 @@ String cmd=evt.getActionCommand();
       ether.src_mac = mac;
     }
     ether.dst_mac = broadcast; //以太网目的地址，request包为广播地址,reply包为目的地址
+    if (operation == 2){
+      ether.dst_mac = targetMac;
+    }
     packet.datalink = ether; //将arp报文的数据链路层的帧设置为刚刚构造的以太帧赋给
 
     startCapture("arp");//开始捕获

@@ -2,12 +2,14 @@
 import jpcap.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+
 import javax.swing.*;
 
 public class JDCaptureDialog extends JDialog implements ActionListener
 {
-	static JpcapCaptor jpcap=null;
-	
+	public static JpcapCaptor jpcap=null;
+	ArrayList pros = new ArrayList();
 	NetworkInterface[] devices;
 	
 	JComboBox adapterComboBox;
@@ -151,8 +153,9 @@ public class JDCaptureDialog extends JDialog implements ActionListener
 		}
 	}
 	
-	public static JpcapCaptor getJpcap(JFrame parent){
-		new JDCaptureDialog(parent).setVisible(true);//产生对话框
-		return jpcap;
+	public static JDCaptureDialog getJpcap(JFrame parent){
+		JDCaptureDialog capDialog = new JDCaptureDialog(parent);
+		capDialog.setVisible(true);//产生对话框
+		return capDialog;
 	}
 }

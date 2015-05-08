@@ -64,7 +64,8 @@ public class JDCaptor {
 	public void capturePacketsFromDevice() {
 		if(jpcap!=null)
 			jpcap.close();
-		jpcap = JDCaptureDialog.getJpcap(frame);
+		JDCaptureDialog capDialog = JDCaptureDialog.getJpcap(frame);
+		jpcap = capDialog.jpcap;
 		clear();
 		
 		if (jpcap != null) {

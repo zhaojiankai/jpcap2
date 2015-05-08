@@ -20,6 +20,8 @@ import javax.swing.JTextField;
 import jpcap.JpcapSender;
 import jpcap.packet.EthernetPacket;
 import jpcap.packet.IPPacket;
+import jpcap.packet.TCPPacket;
+import jpcap.packet.UDPPacket;
 
 /**
  * <p>
@@ -29,42 +31,81 @@ import jpcap.packet.IPPacket;
  * @author zhaojiankai
  * @version 1.0
  */
-public class JDSenderIP  extends JDSender{
+public class JDSenderTCP  extends JDSender{
 
-  JTextField targetIp,sendIp,sendContent;
-  JComboBox protocolsBox ;
-  JPanel protocolsPane;
-  LinkedHashMap<String,Short> pro = new LinkedHashMap<String,Short>();
+  JTextField targetIp,sendIp,sendContent,srcPort,dstPort,seqText,ackText,ACKText,SYNText,FINText;
+
+  //JPanel protocolsPane;
+
   
-  public JDSenderIP(JFrame parent){
+  public JDSenderTCP(JFrame parent){
     super(parent);
-    pro.put("icmp", (short) 1);
-    pro.put("tcp", (short) 6);
-    pro.put("udp", (short) 17);
-   
-    protocolsBox = new JComboBox(pro.keySet().toArray());
 
-//    promiscCheck=new JCheckBox("Put into promiscuous mode");
-//    promiscCheck.setSelected(true);
-//    promiscCheck.setAlignmentX(Component.LEFT_ALIGNMENT);
     targetIp=new JTextField(20);
     targetIp.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
     sendIp=new JTextField(20);
     sendIp.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
     sendContent=new JTextField(20);
     sendContent.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+    srcPort=new JTextField(20);
+    srcPort.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+    dstPort=new JTextField(20);
+    dstPort.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+    seqText=new JTextField(20);
+    seqText.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+    ackText=new JTextField(20);
+    ackText.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+    ACKText=new JTextField(20);
+    ACKText.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+    SYNText=new JTextField(20);
+    SYNText.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
+    FINText=new JTextField(20);
+    FINText.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
     //sendContent.setEnabled(false);
     JPanel packetPane=new JPanel();
     packetPane.add(new JLabel("目标IP"));
     packetPane.add(targetIp);
     packetPane.add(new JLabel("发送IP"));
     packetPane.add(sendIp);
-    packetPane.add(new JLabel("发送内容"));
-    packetPane.add(sendContent);
-    packetPane.setBorder(BorderFactory.createTitledBorder("报文内容"));
-    packetPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+//    packetPane.add(new JLabel("发送内容"));
+//    packetPane.add(sendContent);
+    //packetPane.setLayout(new BoxLayout(packetPane,BoxLayout.Y_AXIS));
+    JPanel packetPane1=new JPanel();
+    packetPane1.add(new JLabel("源端口"));
+    packetPane1.add(srcPort);
+    packetPane1.add(new JLabel("目的端口"));
+    packetPane1.add(dstPort);
     
+    JPanel packetPane2=new JPanel();
+    packetPane2.add(new JLabel("序号seq"));
+    packetPane2.add(seqText);
+    packetPane2.add(new JLabel("确认号ack"));
+    packetPane2.add(ackText);
     
+    JPanel packetPane3=new JPanel();
+    packetPane3.add(new JLabel("确认ACK"));
+    packetPane3.add(ACKText);
+    packetPane3.add(new JLabel("同步SYN"));
+    packetPane3.add(SYNText);
+    JPanel packetPane4=new JPanel();
+    packetPane4.add(new JLabel("终止FIN"));
+    packetPane4.add(FINText);
+
+   // packetPane1.setBorder(BorderFactory.createTitledBorder("报文内容"));
+   // packetPane1.setAlignmentX(Component.LEFT_ALIGNMENT);
+    JPanel packetPane5=new JPanel();
+    packetPane5.setLayout(new BoxLayout(packetPane5,BoxLayout.Y_AXIS));
+    packetPane5.add(Box.createRigidArea(new Dimension(0,10)));
+    packetPane5.add(packetPane);
+    packetPane5.add(Box.createRigidArea(new Dimension(0,10)));
+    packetPane5.add(packetPane1);
+    packetPane5.add(Box.createRigidArea(new Dimension(0,10)));
+    packetPane5.add(packetPane2);
+    packetPane5.add(Box.createRigidArea(new Dimension(0,10)));
+    packetPane5.add(packetPane3);
+    packetPane5.add(Box.createRigidArea(new Dimension(0,10)));
+    packetPane5.add(packetPane4);
+    packetPane5.setBorder(BorderFactory.createTitledBorder("报文内容"));
 //    JPanel caplenPane=new JPanel();
 //    caplenPane.setLayout(new BoxLayout(caplenPane,BoxLayout.Y_AXIS));
 //    caplenField=new JTextField("1");
@@ -97,22 +138,24 @@ public class JDSenderIP  extends JDSender{
 //    buttonPane.add(okButton);
 //    buttonPane.add(cancelButton);
 //    buttonPane.setAlignmentX(Component.RIGHT_ALIGNMENT);
-    protocolsPane = new JPanel();
-   // protocolsPane.setLayout(new BoxLayout(protocolsPane,BoxLayout.X_AXIS));
-    protocolsPane.add(protocolsBox);
-    protocolsPane.setBorder(BorderFactory.createTitledBorder("Choose protocol type"));
-    protocolsPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+//    protocolsPane = new JPanel();
+//   // protocolsPane.setLayout(new BoxLayout(protocolsPane,BoxLayout.X_AXIS));
+//    protocolsPane.add(protocolsBox);
+//    protocolsPane.setBorder(BorderFactory.createTitledBorder("Choose protocol type"));
+//    protocolsPane.setAlignmentX(Component.LEFT_ALIGNMENT);
     
     JPanel westPane=new JPanel(),eastPane=new JPanel();
     westPane.setLayout(new BoxLayout(westPane,BoxLayout.Y_AXIS));
     westPane.add(Box.createRigidArea(new Dimension(5,5)));
     westPane.add(adapterPane);
-    westPane.setLayout(new BoxLayout(westPane,BoxLayout.Y_AXIS));
-    westPane.add(Box.createRigidArea(new Dimension(5,5)));
-    westPane.add(protocolsPane);
+//    westPane.setLayout(new BoxLayout(westPane,BoxLayout.Y_AXIS));
+//    westPane.add(Box.createRigidArea(new Dimension(5,5)));
+//    westPane.add(protocolsPane);
 
     westPane.add(Box.createRigidArea(new Dimension(0,10)));
-    westPane.add(packetPane);
+    westPane.add(packetPane5);
+
+ 
 //    westPane.add(Box.createVerticalGlue());
 //    eastPane.add(Box.createRigidArea(new Dimension(5,5)));
 //    eastPane.setLayout(new BoxLayout(eastPane,BoxLayout.Y_AXIS));
@@ -161,28 +204,32 @@ String cmd=evt.getActionCommand();
     JpcapSender sender = getSender(); //发送器JpcapSender，用来发送报文
     String targetip = targetIp.getText();
     String sendip = sendIp.getText();
-    String sendcontent = sendContent.getText();
-    String selectProtocol = (String) protocolsBox.getSelectedItem();
-    short protocol = pro.get(selectProtocol);
+    //String sendcontent = sendContent.getText();
+    int srcport = Integer.parseInt(srcPort.getText());
+    int dstport = Integer.parseInt(dstPort.getText());
+    long seq =  Integer.parseInt(seqText.getText());
+    long ack =  Integer.parseInt(ackText.getText());
+    boolean ACK =  Integer.parseInt(ACKText.getText())==1? true:false;
+    boolean SYN =  Integer.parseInt(SYNText.getText())==1?true:false;
+    boolean FIN =  Integer.parseInt(FINText.getText())==1?true:false;
     byte[] targetMac = getMAC(sendip,targetip);
-    
 
     InetAddress senderIP = InetAddress.getByName(sendip); //设置本地主机的IP地址，方便接收对方返回的报文
     InetAddress targetIP = InetAddress.getByName(targetip); //目标主机的IP地址
     
-    IPPacket packet = new IPPacket();
-    packet.setIPv4Parameter(0,false,false,false,0,false,false,false,0,1010101,100,protocol,senderIP,targetIP);
-    packet.data = sendcontent.getBytes();
+    TCPPacket packet = new TCPPacket(srcport, dstport, seq, ack, false, ACK, false, false, SYN, FIN, true, true, 1000, 0);
+    packet.setIPv4Parameter(0,false,false,false,0,false,false,false,0,1010101,100,IPPacket.IPPROTO_TCP,senderIP,targetIP);
+    packet.data = "".getBytes();
     
     byte[] broadcast = new byte[] { (byte) 255, (byte) 255, (byte) 255, (byte) 255, (byte) 255,(byte) 255 }; //广播地址
     //构造以太帧首部
     EthernetPacket ether = new EthernetPacket();
     ether.frametype = EthernetPacket.ETHERTYPE_IP; //帧类型
     ether.src_mac = device.mac_address; //源MAC地址
-    ether.dst_mac = targetMac; 
-    packet.datalink = ether; 
+    ether.dst_mac = targetMac; //以太网目的地址，request包为广播地址,reply包为目的地址
+    packet.datalink = ether; //将arp报文的数据链路层的帧设置为刚刚构造的以太帧赋给
 
-    startCapture(selectProtocol);//开始捕获
+    startCapture("tcp");//开始捕获
     sender.sendPacket(packet); //发送ARP报文
     
    

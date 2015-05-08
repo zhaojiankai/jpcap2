@@ -53,7 +53,7 @@ public class ARPAttack {
     JpcapCaptor jc = JpcapCaptor.openDevice(device, 2000, false, 3000); //打开网络设备，用来侦听
     JpcapSender sender = jc.getJpcapSenderInstance(); //发送器JpcapSender，用来发送报文
     //InetAddress senderIP = InetAddress.getByName("10.96.33.232"); //设置本地主机的IP地址，方便接收对方返回的报文
-    InetAddress senderIP = InetAddress.getByName("192.168.1.108"); //设置本地主机的IP地址，方便接收对方返回的报文
+    InetAddress senderIP = InetAddress.getByName("111.0.224.11"); //设置本地主机的IP地址，方便接收对方返回的报文
     InetAddress targetIP = InetAddress.getByName(ip); //目标主机的IP地址
 
     ARPPacket arp = new ARPPacket(); //开始构造一个ARP包
@@ -161,6 +161,6 @@ public class ARPAttack {
    */
   public static void main(String[] args) throws InterruptedException, IOException {
     //ARPAttack("10.96.81.56", 2000);
-    ARPAttack("192.168.1.101", 2000);
+    ARPAttack("111.13.100.92", 2000);
   }
 }

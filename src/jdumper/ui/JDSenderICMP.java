@@ -162,12 +162,13 @@ String cmd=evt.getActionCommand();
   }
   
   public void sendPacket() throws IOException,NumberFormatException{
-   
+    JpcapSender sender = getSender(); //发送器JpcapSender，用来发送报文
     String targetip = targetIp.getText();
     String sendip = sendIp.getText();
-    JpcapSender sender = getSender(); //发送器JpcapSender，用来发送报文
     String selectProtocol = (String) icmpTypeBox.getSelectedItem();
     short icmptype = pro.get(selectProtocol);
+    byte[] targetMac = getMAC(sendip,targetip);
+    
 
     InetAddress senderIP = InetAddress.getByName(sendip); //设置本地主机的IP地址，方便接收对方返回的报文
     InetAddress targetIP = InetAddress.getByName(targetip); //目标主机的IP地址
@@ -185,10 +186,11 @@ String cmd=evt.getActionCommand();
     EthernetPacket ether = new EthernetPacket();
     ether.frametype = EthernetPacket.ETHERTYPE_IP; //帧类型
     ether.src_mac = device.mac_address; //源MAC地址
-    ether.dst_mac = broadcast; //以太网目的地址，request包为广播地址,reply包为目的地址
-    packet.datalink = ether; //将arp报文的数据链路层的帧设置为刚刚构造的以太帧赋给
+    ether.dst_mac = targetMac; 
+    packet.datalink = ether; 
 
-    startCapture("icmp");//开始捕获
+    startCapture("icmp");
+    //开始捕获
     sender.sendPacket(packet); //发送ARP报文
     
    

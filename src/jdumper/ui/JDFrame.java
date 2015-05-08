@@ -67,7 +67,7 @@ public class JDFrame extends JFrame implements ActionListener
     menu=new JMenu("Send");
     menuBar.add(menu);
     item=new JMenuItem("ARP");
-    item.setActionCommand("SendARP");
+    item.setActionCommand("SendARP");//此处Send*后面的字符串要和JDSender*后的一致
     item.addActionListener(this);
     menu.add(item);
     item=new JMenuItem("IP");
@@ -80,6 +80,10 @@ public class JDFrame extends JFrame implements ActionListener
     menu.add(item);
     item=new JMenuItem("UDP");
     item.setActionCommand("SendUDP");
+    item.addActionListener(this);
+    menu.add(item);
+    item=new JMenuItem("TCP");
+    item.setActionCommand("SendTCP");
     item.addActionListener(this);
     menu.add(item);
     

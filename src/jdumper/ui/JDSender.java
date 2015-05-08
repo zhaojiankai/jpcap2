@@ -7,6 +7,8 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.InetAddress;
+import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -19,6 +21,9 @@ import javax.swing.JPanel;
 import jpcap.JpcapCaptor;
 import jpcap.JpcapSender;
 import jpcap.NetworkInterface;
+import jpcap.packet.ARPPacket;
+import jpcap.packet.EthernetPacket;
+import jpcap.packet.Packet;
 
 /**
  * <p>
@@ -58,23 +63,9 @@ public class JDSender  extends JDialog implements ActionListener{
     adapterPane=new JPanel();
     //adapterPane.setLayout(new BoxLayout(adapterPane,BoxLayout.X_AXIS));
     adapterPane.add(adapterComboBox);
-    adapterPane.setBorder(BorderFactory.createTitledBorder("Choose capture device"));
+    adapterPane.setBorder(BorderFactory.createTitledBorder("Choose send and capture device"));
     adapterPane.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-//    promiscCheck=new JCheckBox("Put into promiscuous mode");
-//    promiscCheck.setSelected(true);
-//    promiscCheck.setAlignmentX(Component.LEFT_ALIGNMENT);
-//    
-//    filterField=new JTextField(20);
-//    //filterField.setMaximumSize(new Dimension(Short.MAX_VALUE,20));
-//    JPanel filterPane=new JPanel();
-//    filterPane.add(new JLabel("Filter"));
-//    filterPane.add(filterField);
-//    filterPane.setBorder(BorderFactory.createTitledBorder("Capture filter"));
-//    filterPane.setAlignmentX(Component.LEFT_ALIGNMENT);
-    
-    
-    
     buttonPane=new JPanel(new FlowLayout(FlowLayout.RIGHT));
     JButton okButton=new JButton("OK");
     okButton.setActionCommand("OK");
@@ -85,29 +76,6 @@ public class JDSender  extends JDialog implements ActionListener{
     buttonPane.add(okButton);
     buttonPane.add(cancelButton);
     buttonPane.setAlignmentX(Component.BOTTOM_ALIGNMENT);
-    
-//    JPanel westPane=new JPanel(),eastPane=new JPanel();
-//    westPane.setLayout(new BoxLayout(westPane,BoxLayout.Y_AXIS));
-//    westPane.add(Box.createRigidArea(new Dimension(5,5)));
-//    westPane.add(adapterPane);
-//
-//
-//    westPane.add(Box.createVerticalGlue());
-//    eastPane.add(Box.createRigidArea(new Dimension(5,5)));
-//
-//    eastPane.add(Box.createRigidArea(new Dimension(5,30)));
-//    eastPane.add(buttonPane);
-//    eastPane.add(Box.createRigidArea(new Dimension(5,5)));
-//    
-//    getContentPane().setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
-//    getContentPane().add(Box.createRigidArea(new Dimension(10,10)));
-//    getContentPane().add(westPane);
-//    getContentPane().add(Box.createRigidArea(new Dimension(10,10)));
-//    getContentPane().add(eastPane);
-//    getContentPane().add(Box.createRigidArea(new Dimension(10,10)));
-//    pack();
-//    
-//    setLocation(parent.getLocation().x+100,parent.getLocation().y+100);
     
   }
 
@@ -134,16 +102,12 @@ public class JDSender  extends JDialog implements ActionListener{
   public JpcapSender getSender() throws IOException {
 
       device = devices[adapterComboBox.getSelectedIndex()];
-      //jpcap = JpcapCaptor.openDevice(devices[adapterComboBox.getSelectedIndex()], 2000, false, 3000);
+      jpcap=JpcapCaptor.openDevice(device,2000,true,3000);
       this.sender = JpcapSender.openDevice(device);
       return this.sender;
 
   }
 public void startCapture(String filter) throws IOException{
-//  JDCaptureDialog jdcap = new j
-  jpcap=JpcapCaptor.openDevice(device,2000,false,3000);
-  
-
   jpcap.setFilter(filter,true);
 
 }
@@ -182,48 +146,63 @@ public static JpcapCaptor getJpcap(JFrame parent,String ptype) {
   return jdsender.jpcap;
 }
 
+public  byte[] getMAC(String srcip,String targetip) throws IOException {
+  String[] src = srcip.split("\\.");
+  String[] target = targetip.split("\\.");
+  if (!(src[0].equals(target[0])&&src[1].equals(target[1])&&src[2].equals(target[2])))
+      targetip = src[0]+"."+src[1]+"."+src[2]+".1";
+    // targetip = "10.230.0.1";
+  device = devices[adapterComboBox.getSelectedIndex()];
+  
+//  JpcapCaptor jc=JpcapCaptor.openDevice(device,2000,false,3000);
+//  JpcapSender sender = jc.getJpcapSenderInstance(); //发送器JpcapSender，用来发送报文
+  //InetAddress senderIP = InetAddress.getByName("10.96.33.232"); //设置本地主机的IP地址，方便接收对方返回的报文
+  InetAddress senderIP = InetAddress.getByName(srcip); //设置本地主机的IP地址，方便接收对方返回的报文
+  InetAddress targetIP = InetAddress.getByName(targetip); //目标主机的IP地址
 
-//  @Override
-//  public void actionPerformed(ActionEvent evt) {
-//    // TODO Auto-generated method stub
-//String cmd=evt.getActionCommand();
-//    
-//    if(cmd.equals("request")){
-//      caplenField.setText("1514");
-//      caplenField.setEnabled(false);
-//    }else if(cmd.equals("reply")){
-//      caplenField.setText("68");
-//      caplenField.setEnabled(false);
-//    }else if(cmd.equals("Other")){
-//      caplenField.setText("");
-//      caplenField.setEnabled(true);
-//      caplenField.requestFocus();
-//    }else if(cmd.equals("OK")){
-//      try{
-//        int caplen=Integer.parseInt(caplenField.getText());
-//        if(caplen<68 || caplen>1514){
-//          JOptionPane.showMessageDialog(null,"Capture length must be between 68 and 1514.");
-//          return;
-//        }
-//        
-//        jpcap=JpcapCaptor.openDevice(devices[adapterComboBox.getSelectedIndex()],caplen,
-//            promiscCheck.isSelected(),50);
-//        
-//        if(filterField.getText()!=null && filterField.getText().length()>0){
-//          jpcap.setFilter(filterField.getText(),true);
-//        }
-//      }catch(NumberFormatException e){
-//        JOptionPane.showMessageDialog(null,"Please input valid integer in capture length.");
-//      }catch(java.io.IOException e){
-//        JOptionPane.showMessageDialog(null,e.toString());
-//        jpcap=null;
-//      }finally{
-//        dispose();
-//      }
-//    }else if(cmd.equals("Cancel")){
-//      dispose();
-//    }
-//  }
+  ARPPacket arp = new ARPPacket(); //开始构造一个ARP包
+  arp.hardtype = ARPPacket.HARDTYPE_ETHER; //硬件类型
+  arp.prototype = ARPPacket.PROTOTYPE_IP; //协议类型
+  arp.operation = ARPPacket.ARP_REQUEST; //指明是ARP请求包
+  arp.hlen = 6; //物理地址长度
+  arp.plen = 4; //协议地址长度
+  arp.sender_hardaddr = device.mac_address; //ARP包的发送端以太网地址,在这里即本地主机地址
+  arp.sender_protoaddr = senderIP.getAddress(); //发送端IP地址, 在这里即本地IP地址
+
+  byte[] broadcast = new byte[] { (byte) 255, (byte) 255, (byte) 255, (byte) 255, (byte) 255,
+      (byte) 255 }; //广播地址
+  arp.target_hardaddr = broadcast; //设置目的端的以太网地址为广播地址
+  arp.target_protoaddr = targetIP.getAddress(); //目的端IP地址
+
+  //构造以太帧首部
+  EthernetPacket ether = new EthernetPacket();
+  ether.frametype = EthernetPacket.ETHERTYPE_ARP; //帧类型
+  ether.src_mac = device.mac_address; //源MAC地址
+  ether.dst_mac = broadcast; //以太网目的地址，广播地址
+  arp.datalink = ether; //将arp报文的数据链路层的帧设置为刚刚构造的以太帧赋给
+
+  sender.sendPacket(arp); //发送ARP报文
+  int i = 0;
+  while (true) { //获取ARP回复包，从中提取出目的主机的MAC地址，如果返回的是网关地址，表明目的IP不是局域网内的地址
+    Packet packet = jpcap.getPacket();
+    if(i++>50){
+      JOptionPane.showMessageDialog(null,"ip不正确");
+      return null;
+    }
+    if (packet instanceof ARPPacket) {
+      ARPPacket p = (ARPPacket) packet;
+      if (p == null) {
+        throw new IllegalArgumentException(targetIP + " is not a local address"); //这种情况也属于目的主机不是本地地址
+      }
+      if (Arrays.equals(p.target_protoaddr, senderIP.getAddress())) {
+        System.out.println("get mac ok");
+        return p.sender_hardaddr; //返回
+      }
+    }
+  }
+}
+
+
 
 }
 
