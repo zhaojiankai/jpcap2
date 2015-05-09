@@ -2,6 +2,7 @@
 import javax.swing.*;
 import javax.swing.table.*;
 import java.util.*;
+import java.util.List;
 import java.awt.*;
 
 import jpcap.packet.*;
@@ -43,8 +44,9 @@ class JDTable extends JComponent
 	void fireTableChanged(){
 		/*model.fireTableStructureChanged();
 		model.fireTableDataChanged();*/
-		System.out.println("captor.getPackets().size() ="+(captor.getPackets().size()-1));
-		model.fireTableRowsInserted(captor.getPackets().size()-1,captor.getPackets().size()-1);
+	  List<Packet> packets = captor.getPackets();
+		System.out.println("captor.getPackets().size() ="+(packets.size()-1));
+		model.fireTableRowsInserted(packets.size()-1,packets.size()-1);
 	}
 	
 	void clear(){
@@ -88,7 +90,7 @@ class JDTable extends JComponent
 	class JDTableModel extends AbstractTableModel
 	{
 		public int getRowCount(){
-			return captor.getPackets().size();
+			return captor.getPacketsByPro().size();
 		}
 		
 		public int getColumnCount(){
@@ -96,8 +98,8 @@ class JDTable extends JComponent
 		}
 		
 		public Object getValueAt(int row,int column){
-			if(captor.getPackets().size()<=row) return "";
-			Packet packet=(Packet)(captor.getPackets().get(row));
+			if(captor.getPacketsByPro().size()<=row) return "";
+			Packet packet=(Packet)(captor.getPacketsByPro().get(row));
 			
 			if(column==0)	return new Integer(row);
 			TableView view=(TableView)views.elementAt(column-1);

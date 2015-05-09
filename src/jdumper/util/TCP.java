@@ -8,7 +8,7 @@
  * ==================================================================
  */
 
-package test;
+package jdumper.util;
 
 /**
  * <p>
@@ -27,12 +27,13 @@ import jpcap.packet.EthernetPacket;
 import jpcap.packet.ICMPPacket;
 import jpcap.packet.IPPacket;
 import jpcap.packet.Packet;
-class ICMP
+import jpcap.packet.TCPPacket;
+class TCP
 {
     public static void main(String[] args) throws java.io.IOException{
         NetworkInterface[] devices = JpcapCaptor.getDeviceList();
         if(args.length<1){
-            System.out.println("Usage: java ICMP ");
+            System.out.println("Usage: java tcp ");
             //            for(int i=0;i<devices.length;i++) 
             for(int i=0;i<devices.length;i++) 
               System.out.println(i+":"+devices[i].name+"("+devices[i].description+")");
@@ -43,37 +44,35 @@ class ICMP
 // 开启网络设备
         JpcapCaptor captor=JpcapCaptor.openDevice(devices[index],2000,false,3000);
 // 设置只过滤  icmp 包
-        captor.setFilter("icmp",true);
+        captor.setFilter("tcp",true);
         JpcapSender sender=captor.getJpcapSenderInstance();
         
-        ICMPPacket p=new ICMPPacket();
-        p.type=ICMPPacket.ICMP_ECHO;
-        p.seq=(short)0x0005;
-        p.id=(short)0x0006;
+        TCPPacket packet = new TCPPacket(5854, 25214, (long)25884, (long)0, false, false, false, false, true, false, true, true, 1000, 0);
+        packet.setIPv4Parameter(0,false,false,false,0,false,false,false,0,1010101,100,IPPacket.IPPROTO_TCP, InetAddress.getByName("192.168.1.108"), InetAddress.getByName("192.168.1.102"));
+        packet.data = "".getBytes();
         
-        p.setIPv4Parameter(0,false,false,false,0,false,false,false,0,1010101,100,IPPacket.IPPROTO_ICMP,
-            InetAddress.getByName("192.168.1.108"),InetAddress.getByName("192.168.1.101"));
-        p.data="abcdefghijklmnopqrstuvwabcdehghi".getBytes();
-        EthernetPacket ether=new EthernetPacket();
-        ether.frametype=EthernetPacket.ETHERTYPE_IP;
-// 填写自己和对方的 mac 地址，必须要正确填写，如果有错误将无法收到回包
-//        ether.dst_mac=new byte[]{(byte)0x00,(byte)0x03,(byte)0x2d,(byte)0x02,(byte)0xd1,(byte)0x69};
-//        ether.src_mac=new byte[]{(byte)0x08,(byte)0x00,(byte)0x46,(byte)0xad,(byte)0x3c,(byte)0x12};
-        ether.dst_mac=stomac("bc-d1-77-d0-56-a4");
-        ether.src_mac=stomac("e0-b9-a5-1a-4f-94");
-        p.datalink=ether;
+        byte[] broadcast = new byte[] { (byte) 255, (byte) 255, (byte) 255, (byte) 255, (byte) 255,(byte) 255 }; //广播地址
+        //构造以太帧首部
+        EthernetPacket ether = new EthernetPacket();
+        ether.frametype = EthernetPacket.ETHERTYPE_IP; //帧类型
+        ether.src_mac = devices[index].mac_address; //源MAC地址
+        ether.dst_mac = broadcast; //以太网目的地址，request包为广播地址,reply包为目的地址
+        packet.datalink = ether; //将arp报文的数据链路层的帧设置为刚刚构造的以太帧赋给
         
-        sender.sendPacket(p);
+        sender.sendPacket(packet);
         System.out.println("send...");
         Packet rp= null;
         while(true){
           rp=captor.getPacket();
-          if (rp instanceof ICMPPacket) {
-            ICMPPacket icmpp=(ICMPPacket)rp;
-            if(icmpp==null){
+          if (rp instanceof TCPPacket) {
+            TCPPacket tcp=(TCPPacket)rp;
+            if(tcp==null){
+           
                 throw new IllegalArgumentException("no rcv icmp echo reply");
+              
             }else
             {
+              System.out.println(tcp.toString());
                 System.out.println("rcv icmp echo reply");
                // return ;
             }

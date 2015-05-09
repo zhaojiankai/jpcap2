@@ -23,7 +23,8 @@ public class IPv4Analyzer extends JDPacketAnalyzer
 		"Source IP",
 		"Destination IP",
 		"Source Host Name",
-		"Destination Host Name"};
+		"Destination Host Name",
+		"Data"};
 	private Hashtable values=new Hashtable();
 	
 	public IPv4Analyzer(){
@@ -62,6 +63,8 @@ public class IPv4Analyzer extends JDPacketAnalyzer
 		values.put(valueNames[12],ip.dst_ip.getHostAddress());
 		values.put(valueNames[13],ip.src_ip);
 		values.put(valueNames[14],ip.dst_ip);
+		values.put(valueNames[15],new String(ip.data));
+		
 	}
 	
 	public Object getValue(String valueName){

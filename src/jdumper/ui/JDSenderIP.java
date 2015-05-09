@@ -41,7 +41,7 @@ public class JDSenderIP  extends JDSender{
     pro.put("icmp", (short) 1);
     pro.put("tcp", (short) 6);
     pro.put("udp", (short) 17);
-   
+
     protocolsBox = new JComboBox(pro.keySet().toArray());
 
 //    promiscCheck=new JCheckBox("Put into promiscuous mode");

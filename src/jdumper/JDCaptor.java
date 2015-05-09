@@ -33,6 +33,8 @@ import jpcap.PacketReceiver;
 import jpcap.JpcapWriter;
 import jpcap.packet.IPPacket;
 import jpcap.packet.Packet;
+import jpcap.packet.TCPPacket;
+import jpcap.packet.UDPPacket;
 
 /**
  * @author kfujii
@@ -44,8 +46,12 @@ public class JDCaptor {
 	long MAX_PACKETS_HOLD=10000;//内存控制
 
 	List<Packet> packets = new ArrayList<Packet>();
+	List<Packet> packetsByPro = new ArrayList<Packet>();
 
 	JpcapCaptor jpcap=null;
+	public   ArrayList<String>pros =null;
+	public int pid=0;
+  public JDCaptureDialog capDialog;
 
 	boolean isLiveCapture;
 	boolean isSaved = false;
@@ -57,15 +63,82 @@ public class JDCaptor {
 	}
 
 	public List<Packet> getPackets(){
-		return packets;
-	}
+	  if(pid !=0){
+	  pros = capDialog.getProByPid(pid);
+//	    pros = new ArrayList<String>();
+//	     pros.add("137");
+//	     pros.add("13666");
+	  if(pros!=null){
+	    //packetsByPro.clear();
+	    for(Packet p:packets){
+	      int dstPort = 0;
+	      int srcPort = 0;
+	      boolean isTCPOrUDP = false;
+	      if(p instanceof TCPPacket){
+	         p = (TCPPacket)p;
+	         dstPort = ((TCPPacket) p).dst_port;
+	         srcPort = ((TCPPacket) p).src_port;
+	         isTCPOrUDP = true;
+	      }
+	      else if(p instanceof UDPPacket){
+	         p =(UDPPacket)p;
+	         dstPort = ((UDPPacket) p).dst_port;
+	         srcPort = ((UDPPacket) p).src_port;
+	         isTCPOrUDP = true;
+	      }
+	      if(isTCPOrUDP){
+	      for(Object n:pros.toArray()){
+	        if(n!=null&&(!"".equals(n))){
+	        try {
+            if(dstPort==Integer.parseInt(n.toString())){
+              packetsByPro.add(p);
+              break;
+            }
+            if(srcPort==Integer.parseInt(n.toString())){
+              packetsByPro.add(p);
+              break;
+            }
+          }
+          catch (NumberFormatException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
+	        }
+	      }
+	        
+	      }
+	    }
+	    packets.clear();
+//	    if(packetsByPro.size()>30){
+//	      stopCapture();
+//	    }
+	    return packetsByPro;
+	  }
+	  else return packetsByPro;
+	  }
 
+	    return packets;
+
+	}
+  public List<Packet> getPacketsByPro(){
+    if(pid !=0){
+      if(pros!=null){
+    return packetsByPro;
+      }
+      else return packetsByPro;
+    }
+
+      return packets;
+
+  }
 
 	public void capturePacketsFromDevice() {
 		if(jpcap!=null)
 			jpcap.close();
-		JDCaptureDialog capDialog = JDCaptureDialog.getJpcap(frame);
+		capDialog = JDCaptureDialog.getJpcap(frame);
 		jpcap = capDialog.jpcap;
+	//	pros = capDialog.pros;
+		pid = capDialog.pid;
 		clear();
 		
 		if (jpcap != null) {
@@ -117,6 +190,7 @@ public class JDCaptor {
 
 	private void clear(){
 		packets.clear();
+		packetsByPro.clear();
 		frame.clear();
 
 		for(int i=0;i<sframes.size();i++)
@@ -147,8 +221,8 @@ public class JDCaptor {
 				//System.out.println("link:"+info.linktype);
 				//System.out.println(lastJpcap);
 				JpcapWriter writer = JpcapWriter.openDumpFile(jpcap,file.getPath());
-
-				for (Packet p:packets) {
+				
+				for (Packet p:getPacketsByPro()) {
 					writer.writePacket(p);
 				}
 
