@@ -234,7 +234,7 @@ public class JDFrame extends JFrame implements ActionListener
 	javax.swing.Timer JDFrameUpdater=new javax.swing.Timer(500,new ActionListener(){
 		public void actionPerformed(ActionEvent evt){
 			tablePane.fireTableChanged();
-			statusLabel.setText("Captured "+captor.getPacketsByPro().size()+" packets.");
+			statusLabel.setText("Captured "+captor.getPackets().size()+" packets.");
 
 			repaint();
 		}

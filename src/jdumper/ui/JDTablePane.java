@@ -94,7 +94,7 @@ class JDTablePane extends JPanel implements ActionListener,ListSelectionListener
 		
 		int index=((ListSelectionModel)evt.getSource()).getMinSelectionIndex();
 		if(index>=0){
-			Packet p=(Packet)captor.getPacketsByPro().get(table.sorter.getOriginalIndex(index));
+			Packet p=(Packet)captor.getPackets().get(table.sorter.getOriginalIndex(index));
 			tree.analyzePacket(p);//单击表的行,这两个地方进行处理
 			text.showPacket(p);
 		}

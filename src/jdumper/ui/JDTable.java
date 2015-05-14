@@ -90,7 +90,7 @@ class JDTable extends JComponent
 	class JDTableModel extends AbstractTableModel
 	{
 		public int getRowCount(){
-			return captor.getPacketsByPro().size();
+			return captor.getPackets().size();
 		}
 		
 		public int getColumnCount(){
@@ -98,8 +98,8 @@ class JDTable extends JComponent
 		}
 		
 		public Object getValueAt(int row,int column){
-			if(captor.getPacketsByPro().size()<=row) return "";
-			Packet packet=(Packet)(captor.getPacketsByPro().get(row));
+			if(captor.getPackets().size()<=row) return "";
+			Packet packet=(Packet)(captor.getPackets().get(row));
 			
 			if(column==0)	return new Integer(row);
 			TableView view=(TableView)views.elementAt(column-1);

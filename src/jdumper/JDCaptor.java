@@ -38,307 +38,277 @@ import jpcap.packet.UDPPacket;
 
 /**
  * @author kfujii
- *
- * To change the template for this generated type comment go to
- * Window>Preferences>Java>Code Generation>Code and Comments
+ * 
+ *         To change the template for this generated type comment go to Window>Preferences>Java>Code
+ *         Generation>Code and Comments
  */
 public class JDCaptor {
-	long MAX_PACKETS_HOLD=10000;//内存控制
+  long MAX_PACKETS_HOLD = 10000;//内存控制
 
-	List<Packet> packets = new ArrayList<Packet>();
-	List<Packet> packetsByPro = new ArrayList<Packet>();
+  List<Packet> packets = new ArrayList<Packet>();
 
-	JpcapCaptor jpcap=null;
-	public   ArrayList<String>pros =null;
-	public int pid=0;
+  JpcapCaptor jpcap = null;
+
+  public ArrayList<String> pros = null;
+
+  public int pid = 0;
+
   public JDCaptureDialog capDialog;
 
-	boolean isLiveCapture;
-	boolean isSaved = false;
+  boolean isLiveCapture;
 
-	JDFrame frame;
+  boolean isSaved = false;
 
-	public void setJDFrame(JDFrame frame){
-		this.frame=frame;
-	}
+  JDFrame frame;
 
-	public List<Packet> getPackets(){
-	  if(pid !=0){
-	  pros = capDialog.getProByPid(pid);
-//	    pros = new ArrayList<String>();
-//	     pros.add("137");
-//	     pros.add("13666");
-	  if(pros!=null){
-	    //packetsByPro.clear();
-	    for(Packet p:packets){
-	      int dstPort = 0;
-	      int srcPort = 0;
-	      boolean isTCPOrUDP = false;
-	      if(p instanceof TCPPacket){
-	         p = (TCPPacket)p;
-	         dstPort = ((TCPPacket) p).dst_port;
-	         srcPort = ((TCPPacket) p).src_port;
-	         isTCPOrUDP = true;
-	      }
-	      else if(p instanceof UDPPacket){
-	         p =(UDPPacket)p;
-	         dstPort = ((UDPPacket) p).dst_port;
-	         srcPort = ((UDPPacket) p).src_port;
-	         isTCPOrUDP = true;
-	      }
-	      if(isTCPOrUDP){
-	      for(Object n:pros.toArray()){
-	        if(n!=null&&(!"".equals(n))){
-	        try {
-            if(dstPort==Integer.parseInt(n.toString())){
-              packetsByPro.add(p);
-              break;
-            }
-            if(srcPort==Integer.parseInt(n.toString())){
-              packetsByPro.add(p);
-              break;
-            }
-          }
-          catch (NumberFormatException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-	        }
-	      }
-	        
-	      }
-	    }
-	    packets.clear();
-//	    if(packetsByPro.size()>30){
-//	      stopCapture();
-//	    }
-	    return packetsByPro;
-	  }
-	  else return packetsByPro;
-	  }
-
-	    return packets;
-
-	}
-  public List<Packet> getPacketsByPro(){
-    if(pid !=0){
-      if(pros!=null){
-    return packetsByPro;
-      }
-      else return packetsByPro;
-    }
-
-      return packets;
-
+  public void setJDFrame(JDFrame frame) {
+    this.frame = frame;
   }
 
-	public void capturePacketsFromDevice() {
-		if(jpcap!=null)
-			jpcap.close();
-		capDialog = JDCaptureDialog.getJpcap(frame);
-		jpcap = capDialog.jpcap;
-	//	pros = capDialog.pros;
-		pid = capDialog.pid;
-		clear();
-		
-		if (jpcap != null) {
-			isLiveCapture = true;
-			frame.disableCapture();//控制前台的一些东西
-			startCaptureThread();
-		}
-	}
-	
-	 public void addSendFrame(String ptype){
-	   if(jpcap!=null)
-	      jpcap.close();
-	    jpcap = JDSender.getJpcap(frame,ptype);
-	    clear();
-	    
-	    if (jpcap != null) {
-	      isLiveCapture = true;
-	      frame.disableCapture();//控制前台的一些东西
-	      startCaptureThread();
-	    }
-	  }
+  public List<Packet> getPackets() {
+    return packets;
+  }
 
-	public void loadPacketsFromFile() {
-		isLiveCapture = false;
-		clear();
+  public void capturePacketsFromDevice() {
+    if (jpcap != null)
+      jpcap.close();
+    capDialog = JDCaptureDialog.getJpcap(frame);
+    jpcap = capDialog.jpcap;
+    //	pros = capDialog.pros;
+    pid = capDialog.pid;
+    clear();
 
-		int ret = JpcapDumper.chooser.showOpenDialog(frame);
-		if (ret == JFileChooser.APPROVE_OPTION) {
-			String path = JpcapDumper.chooser.getSelectedFile().getPath();
+    if (jpcap != null) {
+      isLiveCapture = true;
+      frame.disableCapture();//控制前台的一些东西
+      startCaptureThread();
+    }
+  }
 
-			try {
-				if(jpcap!=null){
-					jpcap.close();
-				}
-				jpcap = JpcapCaptor.openFile(path);
-			} catch (java.io.IOException e) {
-				JOptionPane.showMessageDialog(
-					frame,
-					"Can't open file: " + path);
-				e.printStackTrace();
-				return;
-			}
+  public void addSendFrame(String ptype) {
+    if (jpcap != null)
+      jpcap.close();
+    jpcap = JDSender.getJpcap(frame, ptype);
+    clear();
 
-			frame.disableCapture();
+    if (jpcap != null) {
+      isLiveCapture = true;
+      frame.disableCapture();//控制前台的一些东西
+      startCaptureThread();
+    }
+  }
 
-			startCaptureThread();
-		}
-	}
+  public void loadPacketsFromFile() {
+    isLiveCapture = false;
+    clear();
 
-	private void clear(){
-		packets.clear();
-		packetsByPro.clear();
-		frame.clear();
+    int ret = JpcapDumper.chooser.showOpenDialog(frame);
+    if (ret == JFileChooser.APPROVE_OPTION) {
+      String path = JpcapDumper.chooser.getSelectedFile().getPath();
 
-		for(int i=0;i<sframes.size();i++)
-			((JDStatFrame)sframes.get(i)).clear();
-	}
+      try {
+        if (jpcap != null) {
+          jpcap.close();
+        }
+        jpcap = JpcapCaptor.openFile(path);
+      }
+      catch (java.io.IOException e) {
+        JOptionPane.showMessageDialog(frame, "Can't open file: " + path);
+        e.printStackTrace();
+        return;
+      }
 
-	public void saveToFile() {
-		if (packets == null)
-			return;
+      frame.disableCapture();
 
-		int ret = JpcapDumper.chooser.showSaveDialog(frame);
-		if (ret == JFileChooser.APPROVE_OPTION) {
-			File file = JpcapDumper.chooser.getSelectedFile();
+      startCaptureThread();
+    }
+  }
 
-			if (file.exists()) {
-				if (JOptionPane
-					.showConfirmDialog(
-						frame,
-						"Overwrite " + file.getName() + "?",
-						"Overwrite?",
-						JOptionPane.YES_NO_OPTION)
-					== JOptionPane.NO_OPTION) {
-					return;
-				}
-			}
+  private void clear() {
+    packets.clear();
+    frame.clear();
 
-			try {
-				//System.out.println("link:"+info.linktype);
-				//System.out.println(lastJpcap);
-				JpcapWriter writer = JpcapWriter.openDumpFile(jpcap,file.getPath());
-				
-				for (Packet p:getPacketsByPro()) {
-					writer.writePacket(p);
-				}
+    for (int i = 0; i < sframes.size(); i++)
+      ((JDStatFrame) sframes.get(i)).clear();
+  }
 
-				writer.close();
-				isSaved = true;
-				//JOptionPane.showMessageDialog(frame,file+" was saved correctly.");
-			} catch (java.io.IOException e) {
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(
-					frame,
-					"Can't save file: " + file.getPath());
-			}
-		}
-	}
+  public void saveToFile() {
+    if (packets == null)
+      return;
 
-	public void stopCapture() {
-		stopCaptureThread();
-	}
+    int ret = JpcapDumper.chooser.showSaveDialog(frame);
+    if (ret == JFileChooser.APPROVE_OPTION) {
+      File file = JpcapDumper.chooser.getSelectedFile();
 
-	public void saveIfNot() {
-		if (isLiveCapture && !isSaved) {
-			int ret =
-				JOptionPane.showConfirmDialog(
-					null,
-					"Save this data?",
-					"Save this data?",
-					JOptionPane.YES_NO_OPTION);
-			if (ret == JOptionPane.YES_OPTION)
-				saveToFile();
-		}
-	}
+      if (file.exists()) {
+        if (JOptionPane.showConfirmDialog(frame, "Overwrite " + file.getName() + "?", "Overwrite?",
+            JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+          return;
+        }
+      }
 
+      try {
+        //System.out.println("link:"+info.linktype);
+        //System.out.println(lastJpcap);
+        JpcapWriter writer = JpcapWriter.openDumpFile(jpcap, file.getPath());
 
-	
-	List<JDStatFrame> sframes=new ArrayList<JDStatFrame>();
-	public void addCumulativeStatFrame(JDStatisticsTaker taker) {
-		sframes.add(JDCumlativeStatFrame.openWindow(packets,taker.newInstance()));
-	}
+        for (Packet p : getPackets()) {
+          writer.writePacket(p);
+        }
 
-	public void addContinuousStatFrame(JDStatisticsTaker taker) {
-		sframes.add(JDContinuousStatFrame.openWindow(packets,taker.newInstance()));
-	}
+        writer.close();
+        isSaved = true;
+        //JOptionPane.showMessageDialog(frame,file+" was saved correctly.");
+      }
+      catch (java.io.IOException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(frame, "Can't save file: " + file.getPath());
+      }
+    }
+  }
 
-	public void closeAllWindows(){
-		for(int i=0;i<sframes.size();i++)
-			((JDStatFrame)sframes.get(i)).dispose();
-	}
+  public void stopCapture() {
+    stopCaptureThread();
+  }
 
+  public void saveIfNot() {
+    if (isLiveCapture && !isSaved) {
+      int ret = JOptionPane.showConfirmDialog(null, "Save this data?", "Save this data?",
+          JOptionPane.YES_NO_OPTION);
+      if (ret == JOptionPane.YES_OPTION)
+        saveToFile();
+    }
+  }
 
+  List<JDStatFrame> sframes = new ArrayList<JDStatFrame>();
 
-	private Thread captureThread;
+  public void addCumulativeStatFrame(JDStatisticsTaker taker) {
+    sframes.add(JDCumlativeStatFrame.openWindow(packets, taker.newInstance()));
+  }
 
-	private void startCaptureThread() {
-		if (captureThread != null)
-			return;
+  public void addContinuousStatFrame(JDStatisticsTaker taker) {
+    sframes.add(JDContinuousStatFrame.openWindow(packets, taker.newInstance()));
+  }
 
-		captureThread = new Thread(new Runnable(){
-			//body of capture thread
-			public void run() {
-				while (captureThread != null) {
-					if (jpcap.processPacket(1, handler) == 0 && !isLiveCapture)
-						stopCaptureThread();//这是为文件准备的
-					Thread.yield();
-				}
+  public void closeAllWindows() {
+    for (int i = 0; i < sframes.size(); i++)
+      ((JDStatFrame) sframes.get(i)).dispose();
+  }
 
-				jpcap.breakLoop();
-				//jpcap = null;
-				frame.enableCapture();
-			}
-		});
-		captureThread.setPriority(Thread.MIN_PRIORITY);//设置一个优先权
-		
-		frame.startUpdating();
-		for(int i=0;i<sframes.size();i++){
-			((JDStatFrame)sframes.get(i)).startUpdating();
-		}
-		
-		captureThread.start();
-	}
+  private Thread captureThread;
 
-	void stopCaptureThread() {
-		captureThread = null;
-		frame.stopUpdating();
-		for(int i=0;i<sframes.size();i++){
-			((JDStatFrame)sframes.get(i)).stopUpdating();
-		}
-	}
+  private void startCaptureThread() {
+    if (captureThread != null)
+      return;
 
-	private ExecutorService exe=Executors.newFixedThreadPool(10);//定义了一个线程池
-	public static final Map<InetAddress,String> hostnameCache=new HashMap<InetAddress, String>();
-	
-	private PacketReceiver handler=new PacketReceiver(){
-		public void receivePacket(final Packet packet) {
-			packets.add(packet);//超出内存
-			while (packets.size() > MAX_PACKETS_HOLD) {
-				packets.remove(0);
-			}//仅仅删除一个元素
-			if (!sframes.isEmpty()) {//每个界面都增加一个包
-				for (int i = 0; i < sframes.size(); i++)
-					((JDStatFrame)sframes.get(i)).addPacket(packet);
-			}
-			isSaved = false;
-			
-			if(packet instanceof IPPacket){//如果是IP包
-				exe.execute(new Runnable(){//产生一个线程从线程池中获取
-					public void run() {
-						IPPacket ip=(IPPacket)packet;
-						if(!hostnameCache.containsKey(ip.src_ip))
-							hostnameCache.put(ip.src_ip,ip.src_ip.getHostName());
-						if(!hostnameCache.containsKey(ip.dst_ip))
-							hostnameCache.put(ip.dst_ip,ip.dst_ip.getHostName());
-						System.out.println(hostnameCache.size());
-					}
-				});
-			}
-		}
-	};
+    captureThread = new Thread(new Runnable() {
+      //body of capture thread
+      public void run() {
+        while (captureThread != null) {
+          if (jpcap.processPacket(1, handler) == 0 && !isLiveCapture)
+            stopCaptureThread();//这是为文件准备的
+          Thread.yield();
+        }
+
+        jpcap.breakLoop();
+        //jpcap = null;
+        frame.enableCapture();
+      }
+    });
+    captureThread.setPriority(Thread.MIN_PRIORITY);//设置一个优先权
+
+    frame.startUpdating();
+    for (int i = 0; i < sframes.size(); i++) {
+      ((JDStatFrame) sframes.get(i)).startUpdating();
+    }
+
+    captureThread.start();
+  }
+
+  void stopCaptureThread() {
+    captureThread = null;
+    frame.stopUpdating();
+    for (int i = 0; i < sframes.size(); i++) {
+      ((JDStatFrame) sframes.get(i)).stopUpdating();
+    }
+  }
+
+  private ExecutorService exe = Executors.newFixedThreadPool(10);//定义了一个线程池
+
+  public static final Map<InetAddress, String> hostnameCache = new HashMap<InetAddress, String>();
+
+  private PacketReceiver handler = new PacketReceiver() {
+    public void receivePacket(final Packet packet) {
+      if (pid != 0) {
+        pros = capDialog.getProByPid(pid);
+        //          pros = new ArrayList<String>();
+        //           pros.add("137");
+        //           pros.add("13666");
+        if (pros != null) {
+          //packetsByPro.clear();
+          Packet p = packet;
+          int dstPort = 0;
+          int srcPort = 0;
+          boolean isTCPOrUDP = false;
+          if (p instanceof TCPPacket) {
+            p = (TCPPacket) p;
+            dstPort = ((TCPPacket) p).dst_port;
+            srcPort = ((TCPPacket) p).src_port;
+            isTCPOrUDP = true;
+          }
+          else if (p instanceof UDPPacket) {
+            p = (UDPPacket) p;
+            dstPort = ((UDPPacket) p).dst_port;
+            srcPort = ((UDPPacket) p).src_port;
+            isTCPOrUDP = true;
+          }
+          if (isTCPOrUDP) {
+            for (Object n : pros.toArray()) {
+              if (n != null && (!"".equals(n))) {
+                try {
+                  if (dstPort == Integer.parseInt(n.toString())) {
+                    packets.add(p);
+                    break;
+                  }
+                  if (srcPort == Integer.parseInt(n.toString())) {
+                    packets.add(p);
+                    break;
+                  }
+                }
+                catch (NumberFormatException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+                }
+              }
+            }
+          }
+        }
+      }
+      else {
+        packets.add(packet);
+      }
+      while (packets.size() > MAX_PACKETS_HOLD) {
+        packets.remove(0);
+      }//仅仅删除一个元素
+      if (!sframes.isEmpty()) {//每个界面都增加一个包
+        for (int i = 0; i < sframes.size(); i++)
+          ((JDStatFrame) sframes.get(i)).addPacket(packet);
+      }
+      isSaved = false;
+
+      if (packet instanceof IPPacket) {//如果是IP包
+        exe.execute(new Runnable() {//产生一个线程从线程池中获取
+          public void run() {
+            IPPacket ip = (IPPacket) packet;
+            if (!hostnameCache.containsKey(ip.src_ip))
+              hostnameCache.put(ip.src_ip, ip.src_ip.getHostName());
+            if (!hostnameCache.containsKey(ip.dst_ip))
+              hostnameCache.put(ip.dst_ip, ip.dst_ip.getHostName());
+            System.out.println(hostnameCache.size());
+          }
+        });
+      }
+    }
+  };
 
 }
