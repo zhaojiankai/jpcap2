@@ -164,7 +164,7 @@ String cmd=evt.getActionCommand();
     String sendcontent = sendContent.getText();
     String selectProtocol = (String) protocolsBox.getSelectedItem();
     short protocol = pro.get(selectProtocol);
-    byte[] targetMac = getMAC(sendip,targetip);
+    byte[] targetMac = getNextMAC(sendip,targetip);
     
 
     InetAddress senderIP = InetAddress.getByName(sendip); //设置本地主机的IP地址，方便接收对方返回的报文

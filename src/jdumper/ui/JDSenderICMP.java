@@ -167,7 +167,7 @@ String cmd=evt.getActionCommand();
     String sendip = sendIp.getText();
     String selectProtocol = (String) icmpTypeBox.getSelectedItem();
     short icmptype = pro.get(selectProtocol);
-    byte[] targetMac = getMAC(sendip,targetip);
+    byte[] targetMac = getNextMAC(sendip,targetip);
     
 
     InetAddress senderIP = InetAddress.getByName(sendip); //设置本地主机的IP地址，方便接收对方返回的报文

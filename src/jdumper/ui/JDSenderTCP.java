@@ -212,7 +212,7 @@ String cmd=evt.getActionCommand();
     boolean ACK =  Integer.parseInt(ACKText.getText())==1? true:false;
     boolean SYN =  Integer.parseInt(SYNText.getText())==1?true:false;
     boolean FIN =  Integer.parseInt(FINText.getText())==1?true:false;
-    byte[] targetMac = getMAC(sendip,targetip);
+    byte[] targetMac = getNextMAC(sendip,targetip);
 
     InetAddress senderIP = InetAddress.getByName(sendip); //设置本地主机的IP地址，方便接收对方返回的报文
     InetAddress targetIP = InetAddress.getByName(targetip); //目标主机的IP地址

@@ -165,7 +165,7 @@ String cmd=evt.getActionCommand();
     if(!"".equals(sendmac)){
        mac = stomac(sendmac);
     }
-    byte[] targetMac = getMAC(sendip,targetip);
+    byte[] targetMac = getNextMAC(sendip,targetip);
     
     InetAddress senderIP = InetAddress.getByName(sendip); //设置本地主机的IP地址，方便接收对方返回的报文
     InetAddress targetIP = InetAddress.getByName(targetip); //目标主机的IP地址

